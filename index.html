@@ -14,13 +14,14 @@
 </head>
 <body class="bg-slate-100 font-sans min-h-screen flex flex-col items-center justify-start">
 
+    <!-- PANTALLA DE ACCESO (LOGIN SEGURO) -->
     <div id="loginScreen" class="w-full max-w-md bg-white min-h-screen flex flex-col justify-center items-center px-8 shadow-xl">
         <div class="text-center space-y-3 mb-8">
             <div class="w-16 h-16 bg-purple-100 text-[#6a1b9a] rounded-2xl flex items-center justify-center mx-auto shadow-sm">
                 <i class="fa-solid fa-shield-halved text-2xl"></i>
             </div>
             <h2 class="text-2xl font-bold text-slate-850 tracking-tight">Acceso Restringido</h2>
-            <p class="text-xs text-slate-400 max-w-[240px] mx-auto">Introduce la clave de seguridad para gestionar el Inventario.</p>
+            <p class="text-xs text-slate-400 max-w-[240px] mx-auto">Introduce la clave de seguridad para gestionar el inventario de REPORTEC.</p>
         </div>
 
         <div class="w-full space-y-4">
@@ -41,6 +42,7 @@
         </div>
     </div>
 
+    <!-- CONTENEDOR PRINCIPAL DE LA APLICACIÓN -->
     <div id="appContainer" class="hidden w-full max-w-md bg-[#f3e8ff] min-h-screen flex flex-col relative shadow-xl overflow-hidden pb-16">
         
         <header class="bg-[#6a1b9a] text-white p-4 flex justify-between items-center shadow-md">
@@ -56,6 +58,7 @@
             </div>
         </header>
 
+        <!-- CONTENEDOR DEL BUSCADOR -->
         <div id="searchContainer" class="p-4">
             <div class="w-full bg-white rounded-xl shadow-xs border border-purple-200 px-3 py-2 flex items-center space-x-2">
                 <i class="fa-solid fa-magnifying-glass text-slate-400 text-sm"></i>
@@ -63,9 +66,13 @@
             </div>
         </div>
 
+        <!-- CONTENEDOR DE ELEMENTOS -->
         <main class="flex-1 px-4 overflow-y-auto space-y-3" id="inventoryContainer">
-            </main>
+            <!-- Cargando datos... -->
+            <div class="text-center text-slate-500 pt-10 text-sm">Conectando a la base de datos...</div>
+        </main>
 
+        <!-- MODAL DE CREACIÓN -->
         <div id="createModal" class="hidden fixed inset-0 bg-white z-50 flex flex-col max-w-md mx-auto overflow-hidden">
             <div class="bg-[#6a1b9a] text-white p-4 shadow-sm text-center">
                 <h2 class="text-lg font-bold tracking-wide">Nuevo Registro de Inventario</h2>
@@ -131,6 +138,7 @@
         </div>
     </div>
 
+    <!-- MODAL DETALLES Y EDICIÓN -->
     <div id="detailsModal" class="hidden fixed inset-0 bg-white z-50 flex flex-col max-w-md mx-auto overflow-hidden">
         <form id="editForm" onsubmit="event.preventDefault(); guardarCambiosElemento();" class="flex flex-col h-full">
             <div class="bg-[#6a1b9a] text-white p-4 shadow-sm flex justify-between items-center">
@@ -190,6 +198,7 @@
         </form>
     </div>
 
+    <!-- MODAL QR INDIVIDUAL -->
     <div id="qrModalIndividual" class="hidden fixed inset-0 bg-white z-50 p-4 flex flex-col justify-between max-w-md mx-auto">
         <div class="flex flex-col items-center justify-center flex-grow">
             <div class="inline-flex flex-col items-start p-3 border-l-4 border-[#6a1b9a] bg-slate-50 rounded-r-2xl shadow-sm max-w-[220px]">
@@ -216,9 +225,27 @@
         </div>
     </div>
 
+    <!-- SCRIPTS DE FIREBASE DESDE LA CAPTURA -->
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+
     <script>
-        // LA CONTRASEÑA DEL SISTEMA SE DEFINE AQUÍ:
-        const PASSWORD_CORRECTA = "Muguerza2026";
+        // CONFIGURACIÓN OBTENIDA DE LA IMAGEN image_d5eee8.jpg
+        const firebaseConfig = {
+            apiKey: "AIzaSyAPupzT6Tbwsk-Dl--MguyFZhPRJbfh1LA",
+            authDomain: "inventario-74a4d.firebaseapp.com",
+            projectId: "inventario-74a4d",
+            storageBucket: "inventario-74a4d.firebasestorage.app",
+            messagingSenderId: "1096261153626",
+            appId: "1:1096261153626:web:ad02f208935b9adde8f963"
+        };
+
+        // Inicializar Firebase y Firestore
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+
+        // LA CONTRASEÑA DEL SISTEMA
+        let PASSWORD_CORRECTA = "REPORTEC2026"; 
 
         function verificarPassword() {
             const input = document.getElementById('passwordInput').value;
@@ -227,21 +254,19 @@
             if (input === PASSWORD_CORRECTA) {
                 document.getElementById('loginScreen').classList.add('hidden');
                 document.getElementById('appContainer').classList.remove('hidden');
-                renderizarInterfaz(); // Pinta el inventario guardado
+                escucharBaseDeDatos(); // Carga de datos en tiempo real
             } else {
                 errorMsg.classList.remove('hidden');
                 document.getElementById('passwordInput').value = "";
             }
         }
 
-        // Permitir entrar también presionando 'Enter' en el teclado
         document.getElementById('passwordInput')?.addEventListener('keypress', function(e) {
             if (e.key === 'Enter') verificarPassword();
         });
 
-        // LÓGICA DE LA APLICACIÓN LOCAL
         const opcionesInmobiliario = ["Pantalla", "Teléfonos", "Sillón", "Mueble", "Sillas de ruedas", "Extintores", "Porta pantalla", "Impresora", "PC(cpu y monitor)", "Bancas", "Mesas de jardín", "Escritorios", "Sillas de escritorio", "Carritos de limpieza", "Sillones(alcochonado)"];
-        let baseDeDatos = JSON.parse(localStorage.getItem('local_elementos')) || [];
+        let baseDeDatos = [];
         let modoSeleccionActivo = localStorage.getItem('modoQrActivo') === 'true';
 
         window.onload = () => {
@@ -250,10 +275,11 @@
             inputs.forEach(input => input.value = hoy);
 
             const optContainer = document.getElementById('optionsContainer');
-            optContainer.innerHTML = opcionesInmobiliario.map(option => `
-                <div onclick="selectDropdownOption('create_tipo', '${option}')" class="option-item px-4 py-2 text-sm text-slate-700 hover:bg-purple-50 hover:text-[#6a1b9a] cursor-pointer transition-colors">${option}</div>
-            `).join('');
-
+            if(optContainer) {
+                optContainer.innerHTML = opcionesInmobiliario.map(option => `
+                    <div onclick="selectDropdownOption('create_tipo', '${option}')" class="option-item px-4 py-2 text-sm text-slate-700 hover:bg-purple-50 hover:text-[#6a1b9a] cursor-pointer transition-colors">${option}</div>
+                `).join('');
+            }
             aplicarEstadoBuscador();
         }
 
@@ -263,6 +289,22 @@
                 if (modoSeleccionActivo) buscador.classList.add('hidden');
                 else buscador.classList.remove('hidden');
             }
+        }
+
+        // LEER ELEMENTOS DESDE FIREBASE FIRESTORE EN TIEMPO REAL
+        function escucharBaseDeDatos() {
+            db.collection("inventario").orderBy("codigo", "asc").onSnapshot((snapshot) => {
+                baseDeDatos = [];
+                snapshot.forEach((doc) => {
+                    let data = doc.data();
+                    data.id = doc.id; // Guardamos el ID del documento
+                    baseDeDatos.push(data);
+                });
+                renderizarInterfaz();
+            }, (error) => {
+                console.error("Error al escuchar Firestore: ", error);
+                document.getElementById('inventoryContainer').innerHTML = `<div class="text-center text-rose-600 p-4 text-xs">Error de permisos en Firestore. Asegúrate de activar las reglas públicas en tu consola.</div>`;
+            });
         }
 
         function renderizarInterfaz() {
@@ -281,10 +323,16 @@
             }
 
             let nuevoHtml = '';
-            baseDeDatos.forEach(el => {
+            baseDeDatos.forEach((el) => {
+                const descEscapada = (el.descripcion || '').replace(/'/g, "\\'").replace(/"/g, '\\"');
+                const tipoEscapado = (el.tipoInmobiliario || '').replace(/'/g, "\\'").replace(/"/g, '\\"');
+                const sitioEscapado = (el.sitio || '').replace(/'/g, "\\'").replace(/"/g, '\\"');
+                const areaEscapada = (el.area || '').replace(/'/g, "\\'").replace(/"/g, '\\"');
+                const respEscapado = (el.responsable || '').replace(/'/g, "\\'").replace(/"/g, '\\"');
+
                 if (modoSeleccionActivo) {
                     nuevoHtml += `
-                    <div onclick="abrirModalQrIndividual('${el.codigo}', '${el.tipoInmobiliario}', '${el.sitio}', '${el.area}', '${el.id}')" 
+                    <div onclick="abrirModalQrIndividual('${el.codigo}', '${tipoEscapado}', '${sitioEscapado}', '${areaEscapada}', '${el.id}')" 
                         class="bg-white px-4 py-3 border-b border-purple-100 flex items-center justify-between cursor-pointer hover:bg-purple-50/40 transition w-full rounded-2xl mb-2 border border-slate-100">
                         <div class="flex items-center space-x-3 flex-1 min-w-0">
                             <input type="checkbox" value="${el.id}" onclick="event.stopPropagation()" class="w-4 h-4 accent-purple-700 rounded border-slate-300">
@@ -303,7 +351,7 @@
                     </div>`;
                 } else {
                     nuevoHtml += `
-                    <div onclick="openDetailsModal('${el.codigo}', '${el.tipoInmobiliario}', '${el.descripcion}', '${el.sitio}', '${el.area}', '${el.fechaRegistro}', '${el.responsable}', '${el.id}')" 
+                    <div onclick="openDetailsModal('${el.codigo}', '${tipoEscapado}', '${descEscapada}', '${sitioEscapado}', '${areaEscapada}', '${el.fechaRegistro}', '${respEscapado}', '${el.id}')" 
                         class="inventory-item bg-white p-4 rounded-2xl border border-slate-100 shadow-xs flex justify-between items-center cursor-pointer hover:bg-purple-50/50 transition mb-2 w-full">
                         <div class="space-y-1">
                             <span class="text-xs font-bold text-purple-600 uppercase tracking-wider block">${el.codigo}</span>
@@ -332,6 +380,7 @@
             }
         }
 
+        // GUARDAR REGISTROS DIRECTAMENTE EN FIRESTORE
         function submitCreateForm() {
             const tipo = document.getElementById('create_tipo_value').value;
             const desc = document.getElementById('create_descripcion').value;
@@ -345,53 +394,66 @@
                 return;
             }
 
-            const nuevoId = Date.now().toString();
             const consecutivo = String(baseDeDatos.length + 1).padStart(4, '0');
             const nuevoCodigo = `INV-${consecutivo}`;
 
-            const nuevoElemento = { id: nuevoId, codigo: nuevoCodigo, tipoInmobiliario: tipo, descripcion: desc, sitio: sitio, area: area, fechaRegistro: fecha, responsable: resp };
-            baseDeDatos.push(nuevoElemento);
-            localStorage.setItem('local_elementos', JSON.stringify(baseDeDatos));
+            const nuevoElemento = {
+                codigo: nuevoCodigo,
+                tipoInmobiliario: tipo,
+                descripcion: desc,
+                sitio: sitio,
+                area: area,
+                fechaRegistro: fecha,
+                responsable: resp
+            };
 
-            closeCreateModal();
-            renderizarInterfaz();
+            db.collection("inventario").add(nuevoElemento)
+                .then(() => {
+                    closeCreateModal();
+                })
+                .catch((error) => {
+                    alert("Error al subir a la base de datos: " + error);
+                });
         }
 
+        // ELIMINAR ELEMENTOS EN FIRESTORE
         function eliminarElemento(id) {
-            if (confirm("¿Eliminar este elemento del inventario local?")) {
-                baseDeDatos = baseDeDatos.filter(el => el.id !== id);
-                localStorage.setItem('local_elementos', JSON.stringify(baseDeDatos));
-                renderizarInterfaz();
+            if (confirm("¿Eliminar este elemento de la base de datos en la nube?")) {
+                db.collection("inventario").doc(id).delete()
+                    .catch((error) => alert("Error al eliminar: " + error));
             }
         }
 
+        // MODIFICAR ELEMENTOS EN FIRESTORE
         function guardarCambiosElemento() {
             const id = document.getElementById('editIdHidden').value;
-            const index = baseDeDatos.findIndex(el => el.id === id);
-            if (index !== -1) {
-                baseDeDatos[index].tipoInmobiliario = document.getElementById('detailsTipo').value;
-                baseDeDatos[index].descripcion = document.getElementById('detailsDescripcion').value;
-                baseDeDatos[index].sitio = document.getElementById('detailsSitio').value;
-                baseDeDatos[index].area = document.getElementById('detailsArea').value;
-                baseDeDatos[index].fechaRegistro = document.getElementById('detailsFecha').value;
-                baseDeDatos[index].responsable = document.getElementById('detailsResponsable').value;
+            
+            const datosActualizados = {
+                tipoInmobiliario: document.getElementById('detailsTipo').value,
+                descripcion: document.getElementById('detailsDescripcion').value,
+                sitio: document.getElementById('detailsSitio').value,
+                area: document.getElementById('detailsArea').value,
+                fechaRegistro: document.getElementById('detailsFecha').value,
+                responsable: document.getElementById('detailsResponsable').value
+            };
 
-                localStorage.setItem('local_elementos', JSON.stringify(baseDeDatos));
-                disableEditMode();
-                closeDetailsModal();
-                renderizarInterfaz();
-            }
+            db.collection("inventario").doc(id).update(datosActualizados)
+                .then(() => {
+                    disableEditMode();
+                    closeDetailsModal();
+                })
+                .catch((error) => alert("Error al actualizar: " + error));
         }
 
         function openCreateModal() { document.getElementById('createModal').classList.remove('hidden'); }
         function closeCreateModal() {
             document.getElementById('createForm').reset();
+            document.getElementById('create_tipo_value').value = "";
+            document.getElementById('create_sitio_value').value = "";
             document.getElementById('create_tipo_select').innerHTML = '<span class="text-slate-400">Buscar elementos</span><i class="fa-solid fa-chevron-down text-xs text-[#6a1b9a]"></i>';
             document.getElementById('create_sitio_select').innerHTML = '<span class="text-slate-400">Buscar elementos</span><i class="fa-solid fa-chevron-down text-xs text-[#6a1b9a]"></i>';
             document.getElementById('createModal').classList.add('hidden');
         }
-
-        document.getElementById("createForm").onsubmit = function(e){ e.preventDefault(); };
 
         function toggleDropdown(menuId) { document.getElementById(menuId).classList.toggle('hidden'); }
         function selectDropdownOption(prefix, value) {
@@ -424,16 +486,18 @@
             document.getElementById('editCodigoHidden').value = codigo;
             document.getElementById('detailsHeaderCodigo').innerText = codigo;
             document.getElementById('detailsTipo').value = tipo;
-            document.getElementById('detailsDescripcion').value = descripcion && descripcion !== 'None' ? descripcion : '';
+            document.getElementById('detailsDescripcion').value = (descripcion && descripcion !== 'None' && descripcion !== 'undefined') ? descripcion : '';
             document.getElementById('detailsSitio').value = sitio;
             document.getElementById('detailsArea').value = area;
             document.getElementById('detailsFecha').value = fecha;
             document.getElementById('detailsResponsable').value = responsable;
 
             const qrBox = document.getElementById('detailsQrImg');
-            qrBox.innerHTML = "";
-            const strData = `ID: ${id}\nCódigo: ${codigo}\nTipo: ${tipo}\nSitio: ${sitio}\nÁrea: ${area}`;
-            new QRCode(qrBox, { text: strData, width: 180, height: 180 });
+            if (qrBox) {
+                qrBox.innerHTML = "";
+                const strData = `ID: ${id}\nCódigo: ${codigo}\nTipo: ${tipo}\nSitio: ${sitio}\nÁrea: ${area}`;
+                new QRCode(qrBox, { text: strData, width: 180, height: 180 });
+            }
 
             document.getElementById('detailsModal').classList.remove('hidden');
         }
@@ -486,9 +550,11 @@
             document.getElementById('lblQrArea').innerText = area;
 
             const boxQrInd = document.getElementById('imgQrIndividual');
-            boxQrInd.innerHTML = "";
-            const strData = `ID: ${id}\nCódigo: ${codigo}\nTipo: ${tipo}\nSitio: ${sitio}`;
-            new QRCode(boxQrInd, { text: strData, width: 120, height: 120 });
+            if (boxQrInd) {
+                boxQrInd.innerHTML = "";
+                const strData = `ID: ${id}\nCódigo: ${codigo}\nTipo: ${tipo}\nSitio: ${sitio}`;
+                new QRCode(boxQrInd, { text: strData, width: 120, height: 120 });
+            }
 
             document.getElementById('qrModalIndividual').classList.remove('hidden');
         }

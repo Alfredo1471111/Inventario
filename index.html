@@ -66,61 +66,70 @@
             </div>
             <form id="createForm" onsubmit="event.preventDefault(); submitCreateForm();" class="flex-1 p-5 space-y-4 overflow-y-auto bg-white pb-24">
                 
-                <div>
+                <div class="relative">
                     <label class="block text-sm font-medium text-[#6a1b9a] mb-1">Tipo de Inmobiliario</label>
-                    <select id="create_tipo" required class="w-full px-3 py-2 border border-purple-400 rounded-xl text-sm bg-white text-slate-700 focus:outline-none">
-                        <option value="" disabled selected>Selecciona un tipo...</option>
-                        <option value="Pantalla">Pantalla</option>
-                        <option value="Teléfonos">Teléfonos</option>
-                        <option value="Sillón">Sillón</option>
-                        <option value="Mueble">Mueble</option>
-                        <option value="Sillas de ruedas">Sillas de ruedas</option>
-                        <option value="Extintores">Extintores</option>
-                        <option value="Porta pantalla">Porta pantalla</option>
-                        <option value="Impresora">Impresora</option>
-                        <option value="PC(cpu y monitor)">PC(cpu y monitor)</option>
-                        <option value="Bancas">Bancas</option>
-                        <option value="Mesas de jardín">Mesas de jardín</option>
-                        <option value="Sillones(alcochonado )">Sillones(alcochonado )</option>
-                        <option value="Carritos de servicios color negro.">Carritos de servicios color negro.</option>
-                        <option value="carro de servicio de acero inoxidable">carro de servicio de acero inoxidable</option>
-                        <option value="Escritorios">Escritorios</option>
-                        <option value="Sillas de escritorio">Sillas de escritorio</option>
-                        <option value="Carritos de limpieza">Carritos de limpieza</option>
-                        <option value="Sillas de urgencias bariátrica">Sillas de urgencias bariátrica</option>
-                        <option value="Impresoras para pulseras">Impresoras para pulseras</option>
-                        <option value="Ventilador (torre,rueda,)">Ventilador (torre,rueda,)</option>
-                        <option value="Despachador de agua(mesa,)">Despachador de agua(mesa,)</option>
-                    </select>
+                    <input type="hidden" id="create_tipo_value" required>
+                    <div onclick="toggleDropdown('create_tipo_menu')" id="create_tipo_select" class="w-full px-3 py-2 border border-purple-400 rounded-xl text-sm bg-white flex justify-between items-center cursor-pointer shadow-xs">
+                        <span id="create_tipo_text" class="text-slate-400">Seleccionar mobiliario...</span>
+                        <i class="fa-solid fa-chevron-down text-xs text-[#6a1b9a]"></i>
+                    </div>
+                    <div id="create_tipo_menu" class="hidden absolute left-0 right-0 mt-1 max-h-56 overflow-y-auto bg-white border border-purple-200 rounded-xl shadow-lg z-50 py-1">
+                        <div onclick="selectDropdownOption('create_tipo', 'Pantalla')" class="px-4 py-2 text-sm text-slate-700 hover:bg-purple-50 hover:text-[#6a1b9a] cursor-pointer transition-colors">Pantalla</div>
+                        <div onclick="selectDropdownOption('create_tipo', 'Teléfonos')" class="px-4 py-2 text-sm text-slate-700 hover:bg-purple-50 hover:text-[#6a1b9a] cursor-pointer transition-colors">Teléfonos</div>
+                        <div onclick="selectDropdownOption('create_tipo', 'Sillón')" class="px-4 py-2 text-sm text-slate-700 hover:bg-purple-50 hover:text-[#6a1b9a] cursor-pointer transition-colors">Sillón</div>
+                        <div onclick="selectDropdownOption('create_tipo', 'Mueble')" class="px-4 py-2 text-sm text-slate-700 hover:bg-purple-50 hover:text-[#6a1b9a] cursor-pointer transition-colors">Mueble</div>
+                        <div onclick="selectDropdownOption('create_tipo', 'Sillas de ruedas')" class="px-4 py-2 text-sm text-slate-700 hover:bg-purple-50 hover:text-[#6a1b9a] cursor-pointer transition-colors">Sillas de ruedas</div>
+                        <div onclick="selectDropdownOption('create_tipo', 'Extintores')" class="px-4 py-2 text-sm text-slate-700 hover:bg-purple-50 hover:text-[#6a1b9a] cursor-pointer transition-colors">Extintores</div>
+                        <div onclick="selectDropdownOption('create_tipo', 'Porta pantalla')" class="px-4 py-2 text-sm text-slate-700 hover:bg-purple-50 hover:text-[#6a1b9a] cursor-pointer transition-colors">Porta pantalla</div>
+                        <div onclick="selectDropdownOption('create_tipo', 'Impresora')" class="px-4 py-2 text-sm text-slate-700 hover:bg-purple-50 hover:text-[#6a1b9a] cursor-pointer transition-colors">Impresora</div>
+                        <div onclick="selectDropdownOption('create_tipo', 'PC(cpu y monitor)')" class="px-4 py-2 text-sm text-slate-700 hover:bg-purple-50 hover:text-[#6a1b9a] cursor-pointer transition-colors">PC(cpu y monitor)</div>
+                        <div onclick="selectDropdownOption('create_tipo', 'Bancas')" class="px-4 py-2 text-sm text-slate-700 hover:bg-purple-50 hover:text-[#6a1b9a] cursor-pointer transition-colors">Bancas</div>
+                        <div onclick="selectDropdownOption('create_tipo', 'Mesas de jardín')" class="px-4 py-2 text-sm text-slate-700 hover:bg-purple-50 hover:text-[#6a1b9a] cursor-pointer transition-colors">Mesas de jardín</div>
+                        <div onclick="selectDropdownOption('create_tipo', 'Sillones(alcochonado )')" class="px-4 py-2 text-sm text-slate-700 hover:bg-purple-50 hover:text-[#6a1b9a] cursor-pointer transition-colors">Sillones(alcochonado )</div>
+                        <div onclick="selectDropdownOption('create_tipo', 'Carritos de servicios color negro.')" class="px-4 py-2 text-sm text-slate-700 hover:bg-purple-50 hover:text-[#6a1b9a] cursor-pointer transition-colors">Carritos de servicios color negro.</div>
+                        <div onclick="selectDropdownOption('create_tipo', 'carro de servicio de acero inoxidable')" class="px-4 py-2 text-sm text-slate-700 hover:bg-purple-50 hover:text-[#6a1b9a] cursor-pointer transition-colors">carro de servicio de acero inoxidable</div>
+                        <div onclick="selectDropdownOption('create_tipo', 'Escritorios')" class="px-4 py-2 text-sm text-slate-700 hover:bg-purple-50 hover:text-[#6a1b9a] cursor-pointer transition-colors">Escritorios</div>
+                        <div onclick="selectDropdownOption('create_tipo', 'Sillas de escritorio')" class="px-4 py-2 text-sm text-slate-700 hover:bg-purple-50 hover:text-[#6a1b9a] cursor-pointer transition-colors">Sillas de escritorio</div>
+                        <div onclick="selectDropdownOption('create_tipo', 'Carritos de limpieza')" class="px-4 py-2 text-sm text-slate-700 hover:bg-purple-50 hover:text-[#6a1b9a] cursor-pointer transition-colors">Carritos de limpieza</div>
+                        <div onclick="selectDropdownOption('create_tipo', 'Sillas de urgencias bariátrica')" class="px-4 py-2 text-sm text-slate-700 hover:bg-purple-50 hover:text-[#6a1b9a] cursor-pointer transition-colors">Sillas de urgencias bariátrica</div>
+                        <div onclick="selectDropdownOption('create_tipo', 'Impresoras para pulseras')" class="px-4 py-2 text-sm text-slate-700 hover:bg-purple-50 hover:text-[#6a1b9a] cursor-pointer transition-colors">Impresoras para pulseras</div>
+                        <div onclick="selectDropdownOption('create_tipo', 'Ventilador (torre,rueda,)')" class="px-4 py-2 text-sm text-slate-700 hover:bg-purple-50 hover:text-[#6a1b9a] cursor-pointer transition-colors">Ventilador (torre,rueda,)</div>
+                        <div onclick="selectDropdownOption('create_tipo', 'Despachador de agua(mesa,)')" class="px-4 py-2 text-sm text-slate-700 hover:bg-purple-50 hover:text-[#6a1b9a] cursor-pointer transition-colors">Despachador de agua(mesa,)</div>
+                    </div>
                 </div>
 
                 <div>
                     <label class="block text-sm font-medium text-[#6a1b9a] mb-1">Descripción</label>
-                    <textarea id="create_descripcion" rows="2" class="w-full px-3 py-2 border border-purple-400 rounded-xl text-sm focus:outline-none" placeholder="Detalles..."></textarea>
+                    <textarea id="create_descripcion" rows="2" class="w-full px-3 py-2 border border-purple-400 rounded-xl text-sm focus:outline-none focus:border-purple-600" placeholder="Detalles..."></textarea>
                 </div>
                 
-                <div>
+                <div class="relative">
                     <label class="block text-sm font-medium text-[#6a1b9a] mb-1">Sitio</label>
-                    <select id="create_sitio" required class="w-full px-3 py-2 border border-purple-400 rounded-xl text-sm bg-white text-slate-700 focus:outline-none">
-                        <option value="Hospital UPAEP">Hospital UPAEP</option>
-                        <option value="Centro Medico 1">Centro Medico 1</option>
-                        <option value="Centro Medico 2">Centro Medico 2</option>
-                    </select>
+                    <input type="hidden" id="create_sitio_value" required>
+                    <div onclick="toggleDropdown('create_sitio_menu')" id="create_sitio_select" class="w-full px-3 py-2 border border-purple-400 rounded-xl text-sm bg-white flex justify-between items-center cursor-pointer shadow-xs">
+                        <span id="create_sitio_text" class="text-slate-400">Seleccionar sitio...</span>
+                        <i class="fa-solid fa-chevron-down text-xs text-[#6a1b9a]"></i>
+                    </div>
+                    <div id="create_sitio_menu" class="hidden absolute left-0 right-0 mt-1 bg-white border border-purple-200 rounded-xl shadow-lg z-50 py-1">
+                        <div onclick="selectDropdownOption('create_sitio', 'Hospital UPAEP')" class="px-4 py-2 text-sm text-slate-700 hover:bg-purple-50 hover:text-[#6a1b9a] cursor-pointer transition-colors">Hospital UPAEP</div>
+                        <div onclick="selectDropdownOption('create_sitio', 'Centro Medico 1')" class="px-4 py-2 text-sm text-slate-700 hover:bg-purple-50 hover:text-[#6a1b9a] cursor-pointer transition-colors">Centro Medico 1</div>
+                        <div onclick="selectDropdownOption('create_sitio', 'Centro Medico 2')" class="px-4 py-2 text-sm text-slate-700 hover:bg-purple-50 hover:text-[#6a1b9a] cursor-pointer transition-colors">Centro Medico 2</div>
+                    </div>
                 </div>
 
                 <div>
                     <label class="block text-sm font-medium text-[#6a1b9a] mb-1">Área</label>
-                    <input type="text" id="create_area" required class="w-full px-3 py-2 border border-purple-400 rounded-xl text-sm focus:outline-none">
+                    <input type="text" id="create_area" required class="w-full px-3 py-2 border border-purple-400 rounded-xl text-sm focus:outline-none focus:border-purple-600">
                 </div>
 
                 <div>
                     <label class="block text-sm font-medium text-[#6a1b9a] mb-1">Fecha de Registro</label>
-                    <input type="date" id="create_fechaRegistro" required class="w-full px-3 py-2 border border-purple-400 rounded-xl text-sm bg-white text-slate-700 focus:outline-none">
+                    <input type="date" id="create_fechaRegistro" required class="w-full px-3 py-2 border border-purple-400 rounded-xl text-sm bg-white text-slate-700 focus:outline-none focus:border-purple-600">
                 </div>
 
                 <div>
                     <label class="block text-sm font-medium text-[#6a1b9a] mb-1">Responsable</label>
-                    <input type="text" id="create_responsable" required class="w-full px-3 py-2 border border-purple-400 rounded-xl text-sm focus:outline-none">
+                    <input type="text" id="create_responsable" required class="w-full px-3 py-2 border border-purple-400 rounded-xl text-sm focus:outline-none focus:border-purple-600">
                 </div>
             </form>
             <div class="absolute bottom-0 left-0 right-0 bg-white p-4 border-t border-slate-100 flex space-x-3 z-10">
@@ -203,6 +212,31 @@
 
         let cacheInventario = [];
         let qrcodeGenerator = null;
+
+        // Lógica interactiva de tus menús desplegables
+        window.toggleDropdown = function(menuId) {
+            const menu = document.getElementById(menuId);
+            menu.classList.toggle('hidden');
+        };
+
+        window.selectDropdownOption = function(fieldPrefix, value) {
+            document.getElementById(`${fieldPrefix}_value`).value = value;
+            const textElement = document.getElementById(`${fieldPrefix}_text`);
+            textElement.innerText = value;
+            textElement.classList.remove('text-slate-400');
+            textElement.classList.add('text-slate-800');
+            document.getElementById(`${fieldPrefix}_menu`).classList.add('hidden');
+        };
+
+        // Cerrar menús al hacer clic afuera
+        document.addEventListener('click', function(e) {
+            if (!document.getElementById('create_tipo_select').contains(e.target)) {
+                document.getElementById('create_tipo_menu').classList.add('hidden');
+            }
+            if (!document.getElementById('create_sitio_select').contains(e.target)) {
+                document.getElementById('create_sitio_menu').classList.add('hidden');
+            }
+        });
 
         window.verificarPassword = function() {
             const pass = document.getElementById('passwordInput').value;
@@ -328,23 +362,33 @@
 
         window.openCreateModal = function() {
             document.getElementById('create_fechaRegistro').value = new Date().toISOString().split('T')[0];
+            // Resetear textos de los menús interactivos
+            document.getElementById('create_tipo_text').innerText = "Seleccionar mobiliario...";
+            document.getElementById('create_tipo_text').className = "text-slate-400";
+            document.getElementById('create_tipo_value').value = "";
+            
+            document.getElementById('create_sitio_text').innerText = "Seleccionar sitio...";
+            document.getElementById('create_sitio_text').className = "text-slate-400";
+            document.getElementById('create_sitio_value').value = "";
+
             document.getElementById('createModal').classList.remove('hidden');
         };
+
         window.closeCreateModal = function() {
             document.getElementById('createModal').classList.add('hidden');
             document.getElementById('createForm').reset();
         };
 
         window.submitCreateForm = async function() {
-            const tipo = document.getElementById('create_tipo').value;
+            const tipo = document.getElementById('create_tipo_value').value;
             const descripcion = document.getElementById('create_descripcion').value;
-            const sitio = document.getElementById('create_sitio').value;
+            const sitio = document.getElementById('create_sitio_value').value;
             const area = document.getElementById('create_area').value;
             const fechaRegistro = document.getElementById('create_fechaRegistro').value;
             const responsable = document.getElementById('create_responsable').value;
 
-            if(!tipo || !area || !responsable) {
-                alert("Por favor rellena los campos requeridos.");
+            if(!tipo || !sitio || !area || !responsable) {
+                alert("Por favor rellena todos los campos e interactúa con las listas de selección.");
                 return;
             }
 

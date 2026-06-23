@@ -65,32 +65,62 @@
                 <h2 class="text-lg font-bold tracking-wide">Nuevo Registro de Inventario</h2>
             </div>
             <form id="createForm" onsubmit="event.preventDefault(); submitCreateForm();" class="flex-1 p-5 space-y-4 overflow-y-auto bg-white pb-24">
+                
                 <div>
                     <label class="block text-sm font-medium text-[#6a1b9a] mb-1">Tipo de Inmobiliario</label>
-                    <input type="text" id="create_tipo" required class="w-full px-3 py-2 border border-purple-400 rounded-xl text-sm" placeholder="Ej. Pantalla, Silla...">
-                </div>
-                <div>
-                    <label class="block text-sm font-medium text-[#6a1b9a] mb-1">Descripción</label>
-                    <textarea id="create_descripcion" rows="2" class="w-full px-3 py-2 border border-purple-400 rounded-xl text-sm" placeholder="Detalles..."></textarea>
-                </div>
-                <div>
-                    <label class="block text-sm font-medium text-[#6a1b9a] mb-1">Sitio</label>
-                    <select id="create_sitio" class="w-full px-3 py-2 border border-purple-400 rounded-xl text-sm bg-white">
-                        <option value="Hospital UPAEP">Hospital UPAEP</option>
-                        <option value="Centro Médico Christus Muguerza">Centro Médico Christus Muguerza</option>
+                    <select id="create_tipo" required class="w-full px-3 py-2 border border-purple-400 rounded-xl text-sm bg-white text-slate-700 focus:outline-none">
+                        <option value="" disabled selected>Selecciona un tipo...</option>
+                        <option value="Pantalla">Pantalla</option>
+                        <option value="Teléfonos">Teléfonos</option>
+                        <option value="Sillón">Sillón</option>
+                        <option value="Mueble">Mueble</option>
+                        <option value="Sillas de ruedas">Sillas de ruedas</option>
+                        <option value="Extintores">Extintores</option>
+                        <option value="Porta pantalla">Porta pantalla</option>
+                        <option value="Impresora">Impresora</option>
+                        <option value="PC(cpu y monitor)">PC(cpu y monitor)</option>
+                        <option value="Bancas">Bancas</option>
+                        <option value="Mesas de jardín">Mesas de jardín</option>
+                        <option value="Sillones(alcochonado )">Sillones(alcochonado )</option>
+                        <option value="Carritos de servicios color negro.">Carritos de servicios color negro.</option>
+                        <option value="carro de servicio de acero inoxidable">carro de servicio de acero inoxidable</option>
+                        <option value="Escritorios">Escritorios</option>
+                        <option value="Sillas de escritorio">Sillas de escritorio</option>
+                        <option value="Carritos de limpieza">Carritos de limpieza</option>
+                        <option value="Sillas de urgencias bariátrica">Sillas de urgencias bariátrica</option>
+                        <option value="Impresoras para pulseras">Impresoras para pulseras</option>
+                        <option value="Ventilador (torre,rueda,)">Ventilador (torre,rueda,)</option>
+                        <option value="Despachador de agua(mesa,)">Despachador de agua(mesa,)</option>
                     </select>
                 </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-[#6a1b9a] mb-1">Descripción</label>
+                    <textarea id="create_descripcion" rows="2" class="w-full px-3 py-2 border border-purple-400 rounded-xl text-sm focus:outline-none" placeholder="Detalles..."></textarea>
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-medium text-[#6a1b9a] mb-1">Sitio</label>
+                    <select id="create_sitio" required class="w-full px-3 py-2 border border-purple-400 rounded-xl text-sm bg-white text-slate-700 focus:outline-none">
+                        <option value="Hospital UPAEP">Hospital UPAEP</option>
+                        <option value="Centro Medico 1">Centro Medico 1</option>
+                        <option value="Centro Medico 2">Centro Medico 2</option>
+                    </select>
+                </div>
+
                 <div>
                     <label class="block text-sm font-medium text-[#6a1b9a] mb-1">Área</label>
-                    <input type="text" id="create_area" required class="w-full px-3 py-2 border border-purple-400 rounded-xl text-sm">
+                    <input type="text" id="create_area" required class="w-full px-3 py-2 border border-purple-400 rounded-xl text-sm focus:outline-none">
                 </div>
+
                 <div>
                     <label class="block text-sm font-medium text-[#6a1b9a] mb-1">Fecha de Registro</label>
-                    <input type="date" id="create_fechaRegistro" required class="w-full px-3 py-2 border border-purple-400 rounded-xl text-sm bg-white">
+                    <input type="date" id="create_fechaRegistro" required class="w-full px-3 py-2 border border-purple-400 rounded-xl text-sm bg-white text-slate-700 focus:outline-none">
                 </div>
+
                 <div>
                     <label class="block text-sm font-medium text-[#6a1b9a] mb-1">Responsable</label>
-                    <input type="text" id="create_responsable" required class="w-full px-3 py-2 border border-purple-400 rounded-xl text-sm">
+                    <input type="text" id="create_responsable" required class="w-full px-3 py-2 border border-purple-400 rounded-xl text-sm focus:outline-none">
                 </div>
             </form>
             <div class="absolute bottom-0 left-0 right-0 bg-white p-4 border-t border-slate-100 flex space-x-3 z-10">
@@ -159,7 +189,6 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
         import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc, query, orderBy } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-        // Configuración real que tomamos de tu consola Firebase
         const firebaseConfig = {
             apiKey: "AIzaSyAPupzT6Tbwsk-Dl--MguyFZhPRJbfh11A",
             authDomain: "inventario-74a4d.firebaseapp.com",
@@ -175,7 +204,6 @@
         let cacheInventario = [];
         let qrcodeGenerator = null;
 
-        // Login temporal idéntico al tuyo
         window.verificarPassword = function() {
             const pass = document.getElementById('passwordInput').value;
             if(pass === 'REPORTEC2026' || pass === 'admin') {
@@ -187,10 +215,8 @@
             }
         };
 
-        // Descarga en tiempo real desde Firestore
         async function cargarDatosFirebase() {
             try {
-                const container = document.getElementById('inventoryContainer');
                 const colRef = collection(db, "elementos");
                 const q = query(colRef, orderBy("fechaRegistro", "desc"));
                 const querySnapshot = await getDocs(q);
@@ -200,7 +226,6 @@
 
                 querySnapshot.forEach((docSnap) => {
                     let datos = docSnap.data();
-                    // Generación del código secuencial dinámico INV-XXXX
                     let numStr = String(contador).padStart(4, '0');
                     let customId = `INV-${numStr}`;
                     
@@ -242,7 +267,6 @@
             });
         }
 
-        // Buscador reactivo
         window.searchInventory = function() {
             const txt = document.getElementById('mainSearch').value.toLowerCase();
             const filtrados = cacheInventario.filter(i => 
@@ -254,7 +278,6 @@
             renderizarLista(filtrados);
         };
 
-        // Función para abrir la vista de detalles con tu diseño original y cargar el QR real
         window.openDetailsModal = function(id) {
             const item = cacheInventario.find(i => i.id === id);
             if(!item) return;
@@ -266,7 +289,6 @@
             document.getElementById('cardSitio').innerText = item.sitio || '—';
             document.getElementById('cardArea').innerText = item.area || '—';
             
-            // Ajustar formato de fecha legible (DD/MM/AAAA)
             if(item.fechaRegistro) {
                 const parts = item.fechaRegistro.split('-');
                 document.getElementById('cardFecha').innerText = parts.length === 3 ? `${parts[2]}/${parts[1]}/${parts[0]}` : item.fechaRegistro;
@@ -276,12 +298,11 @@
             
             document.getElementById('cardResponsable').innerText = item.responsable || '—';
 
-            // Dibujar el Código QR limpio dentro del contenedor gris original
             const canvasContainer = document.getElementById('qrcodeCanvas');
             canvasContainer.innerHTML = ''; 
             
             qrcodeGenerator = new QRCode(canvasContainer, {
-                text: item.codigo, // El código de control interno (ej. INV-0001)
+                text: item.codigo, 
                 width: 160,
                 height: 160,
                 colorDark: "#000000",
@@ -296,7 +317,6 @@
             document.getElementById('detailsModal').classList.add('hidden');
         };
 
-        // Eliminar directo desde el botón de la barra morada
         window.eliminarElementoActual = async function() {
             const id = document.getElementById('detailsIdHidden').value;
             if(confirm("¿Estás seguro de que deseas eliminar este registro del servidor?")) {
@@ -306,7 +326,6 @@
             }
         };
 
-        // Abrir y cerrar creación de elementos
         window.openCreateModal = function() {
             document.getElementById('create_fechaRegistro').value = new Date().toISOString().split('T')[0];
             document.getElementById('createModal').classList.remove('hidden');
@@ -316,7 +335,6 @@
             document.getElementById('createForm').reset();
         };
 
-        // Envío de formulario directo a la nube
         window.submitCreateForm = async function() {
             const tipo = document.getElementById('create_tipo').value;
             const descripcion = document.getElementById('create_descripcion').value;

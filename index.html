@@ -2,41 +2,44 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Inventario QR - REPORTEC</title>
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <style>
-        .overflow-y-auto::-webkit-scrollbar { width: 0px; background: transparent; }
+        * {
+            box-sizing: border-box;
+        }
         
-        /* SOLUCIÓN RADICAL PARA LOGRAR LA HOJA DE IMPRESIÓN LIMPIA */
+        .overflow-y-auto::-webkit-scrollbar { 
+            width: 0px; 
+            background: transparent; 
+        }
+
+        /* ESTILOS DE IMPRESIÓN MEJORADOS */
         @media print {
             @page {
-                size: auto;
-                margin: 0mm;
+                size: A4 portrait;
+                margin: 10mm 8mm 10mm 8mm;
             }
             
-            /* Ocultar toda la interfaz de la aplicación */
+            /* Ocultar todo lo que no es impresión */
             body * {
                 visibility: hidden !important;
             }
             
-            /* Forzar el fondo blanco en toda la estructura de impresión */
             html, body {
-                background: #ffffff !important;
-                background-color: #ffffff !important;
+                background: white !important;
                 margin: 0 !important;
                 padding: 0 !important;
-                height: 100vh !important;
-                max-height: 100vh !important;
-                overflow: hidden !important;
-                display: block !important;
+                width: 100% !important;
+                height: 100% !important;
                 -webkit-print-color-adjust: exact !important;
                 print-color-adjust: exact !important;
             }
             
-            /* Área de impresión visible, pegada arriba a la izquierda y sin bordes de fondo */
+            /* Mostrar solo el área de impresión */
             #printArea, #printArea * {
                 visibility: visible !important;
             }
@@ -44,27 +47,30 @@
             #printArea {
                 display: block !important;
                 position: absolute !important;
-                left: 0 !important;
                 top: 0 !important;
+                left: 0 !important;
                 width: 100% !important;
+                min-height: 100vh !important;
+                background: white !important;
+                padding: 0 !important;
                 margin: 0 !important;
-                padding: 20px !important;
-                background: #ffffff !important;
-                background-color: #ffffff !important;
             }
 
-            /* Contenedor que alinea los códigos exactamente de arriba hacia abajo */
+            /* Grid de códigos QR - Distribución óptima para A4 */
             .print-grid {
-                display: flex !important;
-                flex-wrap: wrap !important;
-                justify-content: flex-start !important;
-                align-items: flex-start !important;
-                gap: 15px !important;
-                background: #ffffff !important;
+                display: grid !important;
+                grid-template-columns: repeat(4, 1fr) !important;
+                gap: 12px 8px !important;
+                justify-items: center !important;
+                align-items: start !important;
+                padding: 5px !important;
+                background: white !important;
                 width: 100% !important;
+                max-width: 100% !important;
+                margin: 0 auto !important;
             }
 
-            /* Tarjeta de impresión idéntica a tu Diseño 2 (Sin bordes punteados feos) */
+            /* Tarjeta individual de QR */
             .qr-print-card {
                 page-break-inside: avoid !important;
                 break-inside: avoid !important;
@@ -72,26 +78,70 @@
                 flex-direction: column !important;
                 align-items: center !important;
                 justify-content: center !important;
-                background: #ffffff !important;
-                background-color: #ffffff !important;
-                padding: 10px !important;
-                width: 130px !important;
+                background: white !important;
+                padding: 6px 4px !important;
+                width: 100% !important;
+                max-width: 110px !important;
                 text-align: center !important;
                 box-sizing: border-box !important;
+                border: 1px solid #e5e7eb !important;
+                border-radius: 6px !important;
             }
             
-            /* Imagen limpia del QR sin marcos extra */
-            .qr-print-card img {
+            /* QR dentro de la tarjeta */
+            .qr-print-card .qr-wrapper {
+                background: white !important;
+                padding: 0 !important;
+                display: flex !important;
+                justify-content: center !important;
+                align-items: center !important;
+                width: 100% !important;
+            }
+            
+            .qr-print-card .qr-wrapper img,
+            .qr-print-card .qr-wrapper canvas {
                 display: block !important;
-                margin: 0 auto !important;
-                width: 110px !important;
-                height: 110px !important;
+                width: 85px !important;
+                height: 85px !important;
+                max-width: 85px !important;
+                max-height: 85px !important;
+                object-fit: contain !important;
+            }
+            
+            .qr-print-card .qr-code-text {
+                font-size: 11px !important;
+                font-weight: 700 !important;
+                margin-top: 4px !important;
+                color: #000000 !important;
+                font-family: Arial, Helvetica, sans-serif !important;
+                letter-spacing: 0.3px !important;
+                line-height: 1.2 !important;
+                word-break: break-word !important;
+            }
+        }
+
+        /* Responsive para móvil - ajuste de QR en vista previa */
+        @media screen and (max-width: 480px) {
+            .qr-print-card .qr-wrapper img,
+            .qr-print-card .qr-wrapper canvas {
+                width: 70px !important;
+                height: 70px !important;
+            }
+            
+            .qr-print-card {
+                padding: 4px !important;
+                max-width: 90px !important;
+            }
+            
+            .qr-print-card .qr-code-text {
+                font-size: 10px !important;
             }
         }
     </style>
 </head>
 <body class="bg-slate-100 font-sans min-h-screen flex flex-col items-center justify-start">
 
+    <!-- Pantalla de Login -->
     <div id="loginScreen" class="w-full max-w-md bg-white min-h-screen flex flex-col justify-center items-center px-8 shadow-xl">
         <div class="text-center space-y-3 mb-8">
             <div class="w-16 h-16 bg-purple-100 text-[#6a1b9a] rounded-2xl flex items-center justify-center mx-auto shadow-sm">
@@ -114,6 +164,7 @@
         </div>
     </div>
 
+    <!-- App Principal -->
     <div id="appContainer" class="hidden w-full max-w-md bg-[#f3e8ff] min-h-screen flex flex-col relative shadow-xl overflow-hidden pb-16">
         <header class="bg-[#6a1b9a] text-white p-4 flex justify-between items-center shadow-md">
             <div class="flex items-center space-x-3">
@@ -122,7 +173,7 @@
             </div>
             <div class="flex items-center space-x-4 text-lg">
                 <i class="fa-solid fa-mobile-screen-button cursor-pointer"></i>
-                <i class="fa-solid fa-print cursor-pointer"></i>
+                <i class="fa-solid fa-print cursor-pointer" onclick="openBulkQrModal()"></i>
                 <i onclick="openBulkQrModal()" class="fa-solid fa-clipboard-list cursor-pointer hover:text-purple-200 transition"></i>
                 <i onclick="openCreateModal()" class="fa-solid fa-plus cursor-pointer font-bold text-xl hover:text-purple-200 transition"></i>
             </div>
@@ -139,6 +190,7 @@
             <div class="text-center text-slate-500 pt-10 text-sm">Conectando a la base de datos...</div>
         </main>
 
+        <!-- Modal Crear/Editar -->
         <div id="createModal" class="hidden fixed inset-0 bg-white z-50 flex flex-col max-w-md mx-auto overflow-hidden">
             <div class="bg-[#6a1b9a] text-white p-4 shadow-sm text-center">
                 <h2 id="modalTitle" class="text-lg font-bold tracking-wide">Nuevo Registro de Inventario</h2>
@@ -217,6 +269,7 @@
         </div>
     </div>
 
+    <!-- Modal Detalles -->
     <div id="detailsModal" class="hidden fixed inset-0 bg-[#f3e8ff] z-50 flex flex-col max-w-md mx-auto overflow-hidden">
         <header class="bg-[#6a1b9a] text-white p-4 flex justify-between items-center shadow-md">
             <div class="flex items-center space-x-3">
@@ -272,6 +325,7 @@
         </main>
     </div>
 
+    <!-- Modal Bulk QR -->
     <div id="bulkQrModal" class="hidden fixed inset-0 bg-[#f3e8ff] z-50 flex flex-col max-w-md mx-auto overflow-hidden">
         <header class="bg-[#6a1b9a] text-white p-4 flex justify-between items-center shadow-md no-print">
             <div class="flex items-center space-x-3">
@@ -284,9 +338,9 @@
         </header>
 
         <main id="bulkQrListContainer" class="flex-1 p-3 overflow-y-auto space-y-2 no-print">
-            </main>
+        </main>
 
-        <div id="printArea" class="hidden bg-white"></div>
+        <div id="printArea" class="hidden" style="background:white;"></div>
     </div>
 
     <script type="module">
@@ -309,26 +363,36 @@
         let qrcodeGenerator = null;
         let editandoId = null;
 
+        // Funciones globales
         window.toggleDropdown = function(menuId) {
             const menu = document.getElementById(menuId);
-            menu.classList.toggle('hidden');
+            if (menu) menu.classList.toggle('hidden');
         };
 
         window.selectDropdownOption = function(fieldPrefix, value) {
-            document.getElementById(`${fieldPrefix}_value`).value = value;
+            const hiddenInput = document.getElementById(`${fieldPrefix}_value`);
             const textElement = document.getElementById(`${fieldPrefix}_text`);
-            textElement.innerText = value;
-            textElement.classList.remove('text-slate-400');
-            textElement.classList.add('text-slate-800');
-            document.getElementById(`${fieldPrefix}_menu`).classList.add('hidden');
+            const menu = document.getElementById(`${fieldPrefix}_menu`);
+            
+            if (hiddenInput) hiddenInput.value = value;
+            if (textElement) {
+                textElement.innerText = value;
+                textElement.classList.remove('text-slate-400');
+                textElement.classList.add('text-slate-800');
+            }
+            if (menu) menu.classList.add('hidden');
         };
 
         document.addEventListener('click', function(e) {
-            if (document.getElementById('create_tipo_select') && !document.getElementById('create_tipo_select').contains(e.target)) {
-                document.getElementById('create_tipo_menu').classList.add('hidden');
+            const tipoSelect = document.getElementById('create_tipo_select');
+            if (tipoSelect && !tipoSelect.contains(e.target)) {
+                const menu = document.getElementById('create_tipo_menu');
+                if (menu) menu.classList.add('hidden');
             }
-            if (document.getElementById('create_sitio_select') && !document.getElementById('create_sitio_select').contains(e.target)) {
-                document.getElementById('create_sitio_menu').classList.add('hidden');
+            const sitioSelect = document.getElementById('create_sitio_select');
+            if (sitioSelect && !sitioSelect.contains(e.target)) {
+                const menu = document.getElementById('create_sitio_menu');
+                if (menu) menu.classList.add('hidden');
             }
         });
 
@@ -457,7 +521,7 @@
             document.getElementById('bulkQrModal').classList.add('hidden');
         };
 
-        // IMPRESIÓN MÁXIMA DEFINITIVA: SOLO QR Y CÓDIGO PEGADO ARRIBA EN BLANCO ABSOLUTO
+        // IMPRESIÓN MEJORADA - QR y código en una sola hoja
         window.imprimirCodigosSeleccionados = function() {
             const checkboxes = document.querySelectorAll('.qr-selector:checked');
             if (checkboxes.length === 0) {
@@ -479,15 +543,17 @@
                     const printCard = document.createElement('div');
                     printCard.className = "qr-print-card";
                     printCard.innerHTML = `
-                        <div id="finalPrintQR_${idx}" style="background: #ffffff; padding: 0; display: inline-block;"></div>
-                        <div style="font-size: 15px; font-weight: bold; margin-top: 4px; color: #000000; font-family: sans-serif; letter-spacing: 0.5px;">${item.codigo}</div>
+                        <div class="qr-wrapper" id="finalPrintQR_${idx}"></div>
+                        <div class="qr-code-text">${item.codigo}</div>
                     `;
                     gridContainer.appendChild(printCard);
 
-                    new QRCode(document.getElementById(`finalPrintQR_${idx}`), {
+                    // Generar QR con tamaño optimizado
+                    const qrContainer = document.getElementById(`finalPrintQR_${idx}`);
+                    new QRCode(qrContainer, {
                         text: item.codigo,
-                        width: 110,
-                        height: 110,
+                        width: 85,
+                        height: 85,
                         colorDark: "#000000",
                         colorLight: "#ffffff",
                         correctLevel: QRCode.CorrectLevel.H
@@ -495,13 +561,14 @@
                 }
             });
 
+            // Esperar a que se generen los QR y luego imprimir
             setTimeout(() => {
                 window.print();
                 
                 setTimeout(() => {
                     printArea.classList.add('hidden');
-                }, 600);
-            }, 1100);
+                }, 800);
+            }, 1200);
         };
 
         window.openDetailsModal = function(id) {

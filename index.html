@@ -9,6 +9,8 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <!-- Librería para escanear QR -->
     <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+    <!-- Librería para exportar a Excel -->
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
     <style>
         * {
             box-sizing: border-box;
@@ -188,6 +190,7 @@
                 <i onclick="openScannerModal()" class="fa-solid fa-qrcode cursor-pointer hover:text-purple-200 transition"></i>
                 <i onclick="openBulkQrModal()" class="fa-solid fa-print cursor-pointer hover:text-purple-200 transition"></i>
                 <i onclick="openBulkQrModal()" class="fa-solid fa-clipboard-list cursor-pointer hover:text-purple-200 transition"></i>
+                <i onclick="exportarExcel()" class="fa-solid fa-file-excel cursor-pointer hover:text-purple-200 transition" title="Descargar Excel"></i>
                 <i onclick="openCreateModal()" class="fa-solid fa-plus cursor-pointer font-bold text-xl hover:text-purple-200 transition"></i>
             </div>
         </header>
@@ -519,6 +522,53 @@
             renderizarLista(filtrados);
         };
 
+        // ===== FUNCIÓN PARA EXPORTAR A EXCEL =====
+        window.exportarExcel = function() {
+            if (cacheInventario.length === 0) {
+                alert("No hay datos para exportar. El inventario está vacío.");
+                return;
+            }
+
+            // Preparar los datos para Excel
+            const datosExcel = cacheInventario.map((item, index) => ({
+                '#': index + 1,
+                'Código': item.codigo || '',
+                'Tipo': item.tipo || '',
+                'Descripción': item.descripcion || '',
+                'Sitio': item.sitio || '',
+                'Área': item.area || '',
+                'Fecha Registro': item.fechaRegistro || '',
+                'Responsable': item.responsable || ''
+            }));
+
+            // Crear libro de trabajo
+            const wb = XLSX.utils.book_new();
+            const ws = XLSX.utils.json_to_sheet(datosExcel);
+
+            // Ajustar ancho de columnas
+            const colWidths = [
+                { wch: 5 },   // #
+                { wch: 12 },  // Código
+                { wch: 25 },  // Tipo
+                { wch: 30 },  // Descripción
+                { wch: 20 },  // Sitio                { wch: 15 },  // Área
+                { wch: 15 },  // Fecha Registro
+                { wch: 25 }   // Responsable
+            ];
+            ws['!cols'] = colWidths;
+
+            // Agregar hoja al libro
+            XLSX.utils.book_append_sheet(wb, ws, "Inventario");
+            
+            // Crear nombre de archivo con fecha
+            const fecha = new Date();
+            const fechaStr = `${fecha.getFullYear()}-${String(fecha.getMonth()+1).padStart(2,'0')}-${String(fecha.getDate()).padStart(2,'0')}`;
+            const nombreArchivo = `Inventario_${fechaStr}.xlsx`;
+
+            // Descargar archivo
+            XLSX.writeFile(wb, nombreArchivo);
+        };
+
         // ===== FUNCIONES DEL ESCÁNER QR =====
         window.openScannerModal = function() {
             document.getElementById('scannerModal').classList.remove('hidden');
@@ -574,23 +624,19 @@
         }
 
         function onScanSuccess(decodedText, decodedResult) {
-            // decodedText es el código QR (ej: INV-0001)
             detenerScanner();
             
             document.getElementById('scannerResult').classList.remove('hidden');
             document.getElementById('scannedCode').innerText = decodedText;
             
-            // Buscar el elemento en el inventario
             const item = cacheInventario.find(i => i.codigo === decodedText);
             
             if (item) {
-                // Mostrar mensaje de éxito y abrir detalles
                 setTimeout(() => {
                     closeScannerModal();
                     openDetailsModal(item.id);
                 }, 1500);
             } else {
-                // No se encontró el elemento
                 const resultDiv = document.getElementById('scannerResult');
                 resultDiv.className = 'mt-4 w-full';
                 resultDiv.innerHTML = `
@@ -607,7 +653,7 @@
         }
 
         function onScanError(error) {
-            // Ignorar errores de escaneo (son normales mientras busca)
+            // Ignorar errores de escaneo
         }
 
         window.reiniciarScanner = function() {

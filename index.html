@@ -62,7 +62,7 @@
 
         <div id="createModal" class="hidden fixed inset-0 bg-white z-50 flex flex-col max-w-md mx-auto overflow-hidden">
             <div class="bg-[#6a1b9a] text-white p-4 shadow-sm text-center">
-                <h2 class="text-lg font-bold tracking-wide">Nuevo Registro de Inventario</h2>
+                <h2 id="modalTitle" class="text-lg font-bold tracking-wide">Nuevo Registro de Inventario</h2>
             </div>
             <form id="createForm" onsubmit="event.preventDefault(); submitCreateForm();" class="flex-1 p-5 space-y-4 overflow-y-auto bg-white pb-24">
                 
@@ -112,8 +112,7 @@
                     </div>
                     <div id="create_sitio_menu" class="hidden absolute left-0 right-0 mt-1 bg-white border border-purple-200 rounded-xl shadow-lg z-50 py-1">
                         <div onclick="selectDropdownOption('create_sitio', 'Hospital UPAEP')" class="px-4 py-2 text-sm text-slate-700 hover:bg-purple-50 hover:text-[#6a1b9a] cursor-pointer transition-colors">Hospital UPAEP</div>
-                        <div onclick="selectDropdownOption('create_sitio', 'Centro Medico 1')" class="px-4 py-2 text-sm text-slate-700 hover:bg-purple-50 hover:text-[#6a1b9a] cursor-pointer transition-colors">Centro Medico 1</div>
-                        <div onclick="selectDropdownOption('create_sitio', 'Centro Medico 2')" class="px-4 py-2 text-sm text-slate-700 hover:bg-purple-50 hover:text-[#6a1b9a] cursor-pointer transition-colors">Centro Medico 2</div>
+                        <div onclick="selectDropdownOption('create_sitio', 'Centro Médico Christus Muguerza')" class="px-4 py-2 text-sm text-slate-700 hover:bg-purple-50 hover:text-[#6a1b9a] cursor-pointer transition-colors">Centro Médico Christus Muguerza</div>
                     </div>
                 </div>
 
@@ -147,7 +146,7 @@
             </div>
             <div class="flex items-center space-x-2">
                 <i onclick="eliminarElementoActual()" class="fa-solid fa-trash-can text-lg cursor-pointer hover:text-rose-300 transition p-2"></i>
-                <i class="fa-solid fa-pen-to-square text-lg cursor-pointer p-2"></i>
+                <i onclick="editarElementoActual()" class="fa-solid fa-pen-to-square text-lg cursor-pointer p-2 hover:text-purple-200 transition"></i>
             </div>
         </header>
 
@@ -196,7 +195,8 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc, query, orderBy } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+        // Añadida la función updateDoc para actualizar registros existentes en Firestore
+        import { getFirestore, collection, addDoc, getDocs, deleteDoc, updateDoc, doc, query, orderBy } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyAPupzT6Tbwsk-Dl--MguyFZhPRJbfh11A",
@@ -212,6 +212,7 @@
 
         let cacheInventario = [];
         let qrcodeGenerator = null;
+        let editandoId = null; // Variable de control para saber si estamos editando o creando
 
         // Lógica interactiva de tus menús desplegables
         window.toggleDropdown = function(menuId) {
@@ -230,10 +231,10 @@
 
         // Cerrar menús al hacer clic afuera
         document.addEventListener('click', function(e) {
-            if (!document.getElementById('create_tipo_select').contains(e.target)) {
+            if (document.getElementById('create_tipo_select') && !document.getElementById('create_tipo_select').contains(e.target)) {
                 document.getElementById('create_tipo_menu').classList.add('hidden');
             }
-            if (!document.getElementById('create_sitio_select').contains(e.target)) {
+            if (document.getElementById('create_sitio_select') && !document.getElementById('create_sitio_select').contains(e.target)) {
                 document.getElementById('create_sitio_menu').classList.add('hidden');
             }
         });
@@ -360,8 +361,53 @@
             }
         };
 
+        // FUNCIÓN NUEVA: Prepara el formulario con los datos viejos para EDITAR
+        window.editarElementoActual = function() {
+            const id = document.getElementById('detailsIdHidden').value;
+            const item = cacheInventario.find(i => i.id === id);
+            if(!item) return;
+
+            editandoId = id; // Guardamos el ID del documento que vamos a modificar
+            
+            // Cambiamos el título del modal
+            document.getElementById('modalTitle').innerText = "Editar Registro " + item.codigo;
+
+            // Rellenamos los campos normales
+            document.getElementById('create_descripcion').value = item.descripcion || "";
+            document.getElementById('create_area').value = item.area || "";
+            document.getElementById('create_fechaRegistro').value = item.fechaRegistro || "";
+            document.getElementById('create_responsable').value = item.responsable || "";
+
+            // Forzamos la selección visual de tu menú desplegable Tipo
+            if(item.tipo) {
+                selectDropdownOption('create_tipo', item.tipo);
+            } else {
+                document.getElementById('create_tipo_text').innerText = "Seleccionar mobiliario...";
+                document.getElementById('create_tipo_text').className = "text-slate-400";
+                document.getElementById('create_tipo_value').value = "";
+            }
+
+            // Forzamos la selección visual de tu menú desplegable Sitio
+            if(item.sitio) {
+                selectDropdownOption('create_sitio', item.sitio);
+            } else {
+                document.getElementById('create_sitio_text').innerText = "Seleccionar sitio...";
+                document.getElementById('create_sitio_text').className = "text-slate-400";
+                document.getElementById('create_sitio_value').value = "";
+            }
+
+            // Ocultamos el modal de detalles y abrimos el formulario
+            document.getElementById('detailsModal').classList.add('hidden');
+            document.getElementById('createModal').classList.remove('hidden');
+        };
+
         window.openCreateModal = function() {
+            editandoId = null; // Al ser una creación limpia, nos aseguramos que no guarde ID anterior
+            document.getElementById('modalTitle').innerText = "Nuevo Registro de Inventario";
+            
+            document.getElementById('createForm').reset();
             document.getElementById('create_fechaRegistro').value = new Date().toISOString().split('T')[0];
+            
             // Resetear textos de los menús interactivos
             document.getElementById('create_tipo_text').innerText = "Seleccionar mobiliario...";
             document.getElementById('create_tipo_text').className = "text-slate-400";
@@ -377,6 +423,7 @@
         window.closeCreateModal = function() {
             document.getElementById('createModal').classList.add('hidden');
             document.getElementById('createForm').reset();
+            editandoId = null;
         };
 
         window.submitCreateForm = async function() {
@@ -393,18 +440,33 @@
             }
 
             try {
-                await addDoc(collection(db, "elementos"), {
-                    tipo,
-                    descripcion,
-                    sitio,
-                    area,
-                    fechaRegistro,
-                    responsable
-                });
+                if (editandoId) {
+                    // MODO EDICIÓN: Actualiza el documento existente en Firebase
+                    const docRef = doc(db, "elementos", editandoId);
+                    await updateDoc(docRef, {
+                        tipo,
+                        descripcion,
+                        sitio,
+                        area,
+                        fechaRegistro,
+                        responsable
+                    });
+                    editandoId = null; // Limpiar control
+                } else {
+                    // MODO CREACIÓN: Crea un elemento nuevo desde cero
+                    await addDoc(collection(db, "elementos"), {
+                        tipo,
+                        descripcion,
+                        sitio,
+                        area,
+                        fechaRegistro,
+                        responsable
+                    });
+                }
                 closeCreateModal();
                 cargarDatosFirebase();
             } catch(e) {
-                console.error("Error al guardar:", e);
+                console.error("Error al guardar/actualizar:", e);
             }
         };
     </script>

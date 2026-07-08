@@ -10,31 +10,33 @@
     <style>
         .overflow-y-auto::-webkit-scrollbar { width: 0px; background: transparent; }
         
-        /* CORRECCIÓN ABSOLUTA PARA IMPRESIÓN EXCLUSIVA DE UNA HOJA DESDE ARRIBA */
+        /* SOLUCIÓN RADICAL PARA LOGRAR LA HOJA DE IMPRESIÓN LIMPIA */
         @media print {
-            /* Configuración estricta de la página física */
             @page {
                 size: auto;
                 margin: 0mm;
             }
             
-            /* Ocultar radicalmente la aplicación entera */
+            /* Ocultar toda la interfaz de la aplicación */
             body * {
                 visibility: hidden !important;
             }
             
-            /* Forzar que el cuerpo de impresión inicie al tope superior izquierdo y no genere 2 hojas */
+            /* Forzar el fondo blanco en toda la estructura de impresión */
             html, body {
                 background: #ffffff !important;
+                background-color: #ffffff !important;
                 margin: 0 !important;
                 padding: 0 !important;
                 height: 100vh !important;
                 max-height: 100vh !important;
                 overflow: hidden !important;
                 display: block !important;
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
             }
             
-            /* Contenedor primario de impresión pegado arriba */
+            /* Área de impresión visible, pegada arriba a la izquierda y sin bordes de fondo */
             #printArea, #printArea * {
                 visibility: visible !important;
             }
@@ -46,21 +48,23 @@
                 top: 0 !important;
                 width: 100% !important;
                 margin: 0 !important;
-                padding: 15px !important;
+                padding: 20px !important;
                 background: #ffffff !important;
+                background-color: #ffffff !important;
             }
 
-            /* Contenedor tipo bloque para iniciar estricto de arriba hacia abajo */
+            /* Contenedor que alinea los códigos exactamente de arriba hacia abajo */
             .print-grid {
                 display: flex !important;
                 flex-wrap: wrap !important;
                 justify-content: flex-start !important;
                 align-items: flex-start !important;
-                gap: 10px !important;
+                gap: 15px !important;
+                background: #ffffff !important;
                 width: 100% !important;
             }
 
-            /* Caja de la etiqueta QR individual compactada */
+            /* Tarjeta de impresión idéntica a tu Diseño 2 (Sin bordes punteados feos) */
             .qr-print-card {
                 page-break-inside: avoid !important;
                 break-inside: avoid !important;
@@ -68,22 +72,20 @@
                 flex-direction: column !important;
                 align-items: center !important;
                 justify-content: center !important;
-                border: 2px dashed #000000 !important;
-                padding: 8px !important;
-                width: 140px !important;
-                height: 150px !important;
                 background: #ffffff !important;
+                background-color: #ffffff !important;
+                padding: 10px !important;
+                width: 130px !important;
                 text-align: center !important;
                 box-sizing: border-box !important;
-                margin: 0 !important;
             }
             
-            /* Imagen del QR limpia */
+            /* Imagen limpia del QR sin marcos extra */
             .qr-print-card img {
                 display: block !important;
-                margin: 4px auto !important;
-                width: 100px !important;
-                height: 100px !important;
+                margin: 0 auto !important;
+                width: 110px !important;
+                height: 110px !important;
             }
         }
     </style>
@@ -189,8 +191,7 @@
                     </div>
                     <div id="create_sitio_menu" class="hidden absolute left-0 right-0 mt-1 bg-white border border-purple-200 rounded-xl shadow-lg z-50 py-1">
                         <div onclick="selectDropdownOption('create_sitio', 'Hospital UPAEP')" class="px-4 py-2 text-sm text-slate-700 hover:bg-purple-50 hover:text-[#6a1b9a] cursor-pointer transition-colors">Hospital UPAEP</div>
-                        <div onclick="selectDropdownOption('create_sitio', 'Centro Médico 1')" class="px-4 py-2 text-sm text-slate-700 hover:bg-purple-50 hover:text-[#6a1b9a] cursor-pointer transition-colors">Centro Médico 1</div>
-                        <div onclick="selectDropdownOption('create_sitio', 'Centro Médico 2')" class="px-4 py-2 text-sm text-slate-700 hover:bg-purple-50 hover:text-[#6a1b9a] cursor-pointer transition-colors">Centro Médico 2</div>
+                        <div onclick="selectDropdownOption('create_sitio', 'Centro Médico Christus Muguerza')" class="px-4 py-2 text-sm text-slate-700 hover:bg-purple-50 hover:text-[#6a1b9a] cursor-pointer transition-colors">Centro Médico Christus Muguerza</div>
                     </div>
                 </div>
 
@@ -456,7 +457,7 @@
             document.getElementById('bulkQrModal').classList.add('hidden');
         };
 
-        // EXCLUSIVO SOLO QR Y CÓDIGO INV (DE ARRIBA HACIA ABAJO)
+        // IMPRESIÓN MÁXIMA DEFINITIVA: SOLO QR Y CÓDIGO PEGADO ARRIBA EN BLANCO ABSOLUTO
         window.imprimirCodigosSeleccionados = function() {
             const checkboxes = document.querySelectorAll('.qr-selector:checked');
             if (checkboxes.length === 0) {
@@ -478,15 +479,15 @@
                     const printCard = document.createElement('div');
                     printCard.className = "qr-print-card";
                     printCard.innerHTML = `
-                        <div style="font-size: 13px; font-weight: bold; margin-bottom: 6px; color: #000000; font-family: sans-serif;">${item.codigo}</div>
-                        <div id="finalPrintQR_${idx}" style="background: #ffffff; padding: 2px; display: inline-block;"></div>
+                        <div id="finalPrintQR_${idx}" style="background: #ffffff; padding: 0; display: inline-block;"></div>
+                        <div style="font-size: 15px; font-weight: bold; margin-top: 4px; color: #000000; font-family: sans-serif; letter-spacing: 0.5px;">${item.codigo}</div>
                     `;
                     gridContainer.appendChild(printCard);
 
                     new QRCode(document.getElementById(`finalPrintQR_${idx}`), {
                         text: item.codigo,
-                        width: 100,
-                        height: 100,
+                        width: 110,
+                        height: 110,
                         colorDark: "#000000",
                         colorLight: "#ffffff",
                         correctLevel: QRCode.CorrectLevel.H

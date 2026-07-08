@@ -17,14 +17,14 @@
             background: transparent; 
         }
 
-        /* ===== ESTILOS DE IMPRESIÓN OPTIMIZADOS ===== */
+        /* ESTILOS DE IMPRESIÓN MEJORADOS */
         @media print {
             @page {
                 size: A4 portrait;
-                margin: 8mm 6mm 8mm 6mm;
+                margin: 10mm 8mm 10mm 8mm;
             }
             
-            /* Ocultar todo excepto el área de impresión */
+            /* Ocultar todo lo que no es impresión */
             body * {
                 visibility: hidden !important;
             }
@@ -50,29 +50,27 @@
                 top: 0 !important;
                 left: 0 !important;
                 width: 100% !important;
-                height: 100% !important;
+                min-height: 100vh !important;
                 background: white !important;
                 padding: 0 !important;
                 margin: 0 !important;
-                overflow: hidden !important;
             }
 
-            /* Grid para códigos QR - 4 columnas para A4 */
+            /* Grid de códigos QR - Distribución óptima para A4 */
             .print-grid {
                 display: grid !important;
                 grid-template-columns: repeat(4, 1fr) !important;
-                gap: 6px 4px !important;
+                gap: 12px 8px !important;
                 justify-items: center !important;
-                align-items: center !important;
-                padding: 2px !important;
+                align-items: start !important;
+                padding: 5px !important;
                 background: white !important;
                 width: 100% !important;
-                height: 100% !important;
-                max-height: 100vh !important;
-                overflow: hidden !important;
+                max-width: 100% !important;
+                margin: 0 auto !important;
             }
 
-            /* Tarjeta individual de QR - más compacta */
+            /* Tarjeta individual de QR */
             .qr-print-card {
                 page-break-inside: avoid !important;
                 break-inside: avoid !important;
@@ -81,65 +79,62 @@
                 align-items: center !important;
                 justify-content: center !important;
                 background: white !important;
-                padding: 4px 2px !important;
+                padding: 6px 4px !important;
                 width: 100% !important;
                 max-width: 110px !important;
                 text-align: center !important;
                 box-sizing: border-box !important;
                 border: 1px solid #e5e7eb !important;
-                border-radius: 4px !important;
+                border-radius: 6px !important;
             }
             
-            /* Contenedor del QR */
+            /* QR dentro de la tarjeta */
             .qr-print-card .qr-wrapper {
                 background: white !important;
-                padding: 2px !important;
+                padding: 0 !important;
                 display: flex !important;
                 justify-content: center !important;
                 align-items: center !important;
                 width: 100% !important;
-                line-height: 0 !important;
             }
             
             .qr-print-card .qr-wrapper img,
             .qr-print-card .qr-wrapper canvas {
                 display: block !important;
-                width: 75px !important;
-                height: 75px !important;
-                max-width: 75px !important;
-                max-height: 75px !important;
+                width: 85px !important;
+                height: 85px !important;
+                max-width: 85px !important;
+                max-height: 85px !important;
                 object-fit: contain !important;
             }
             
-            /* Texto del código - UNA SOLA VEZ debajo del QR */
             .qr-print-card .qr-code-text {
-                font-size: 10px !important;
+                font-size: 11px !important;
                 font-weight: 700 !important;
-                margin-top: 2px !important;
+                margin-top: 4px !important;
                 color: #000000 !important;
                 font-family: Arial, Helvetica, sans-serif !important;
                 letter-spacing: 0.3px !important;
                 line-height: 1.2 !important;
-                text-align: center !important;
-                padding: 0 2px !important;
+                word-break: break-word !important;
             }
         }
 
-        /* Responsive para móvil - vista previa */
+        /* Responsive para móvil - ajuste de QR en vista previa */
         @media screen and (max-width: 480px) {
             .qr-print-card .qr-wrapper img,
             .qr-print-card .qr-wrapper canvas {
-                width: 60px !important;
-                height: 60px !important;
+                width: 70px !important;
+                height: 70px !important;
             }
             
             .qr-print-card {
-                padding: 3px !important;
-                max-width: 80px !important;
+                padding: 4px !important;
+                max-width: 90px !important;
             }
             
             .qr-print-card .qr-code-text {
-                font-size: 8px !important;
+                font-size: 10px !important;
             }
         }
     </style>
@@ -526,7 +521,7 @@
             document.getElementById('bulkQrModal').classList.add('hidden');
         };
 
-        // ===== IMPRESIÓN CORREGIDA - UNA SOLA HOJA =====
+        // IMPRESIÓN MEJORADA - QR y código en una sola hoja
         window.imprimirCodigosSeleccionados = function() {
             const checkboxes = document.querySelectorAll('.qr-selector:checked');
             if (checkboxes.length === 0) {
@@ -547,18 +542,18 @@
                 if (item) {
                     const printCard = document.createElement('div');
                     printCard.className = "qr-print-card";
-                    // SOLO UN TEXTO: el código debajo del QR
                     printCard.innerHTML = `
                         <div class="qr-wrapper" id="finalPrintQR_${idx}"></div>
                         <div class="qr-code-text">${item.codigo}</div>
                     `;
                     gridContainer.appendChild(printCard);
 
+                    // Generar QR con tamaño optimizado
                     const qrContainer = document.getElementById(`finalPrintQR_${idx}`);
                     new QRCode(qrContainer, {
                         text: item.codigo,
-                        width: 75,
-                        height: 75,
+                        width: 85,
+                        height: 85,
                         colorDark: "#000000",
                         colorLight: "#ffffff",
                         correctLevel: QRCode.CorrectLevel.H
@@ -566,14 +561,14 @@
                 }
             });
 
-            // Imprimir después de generar los QR
+            // Esperar a que se generen los QR y luego imprimir
             setTimeout(() => {
                 window.print();
                 
                 setTimeout(() => {
                     printArea.classList.add('hidden');
-                }, 500);
-            }, 1000);
+                }, 800);
+            }, 1200);
         };
 
         window.openDetailsModal = function(id) {

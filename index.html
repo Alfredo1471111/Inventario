@@ -10,38 +10,57 @@
     <style>
         .overflow-y-auto::-webkit-scrollbar { width: 0px; background: transparent; }
         
-        /* ESTILOS REFORZADOS PARA ENMENDAR LA IMPRESIÓN EN CELULARES */
+        /* CORRECCIÓN ABSOLUTA PARA IMPRESIÓN EXCLUSIVA DE UNA HOJA DESDE ARRIBA */
         @media print {
-            /* Ocultar la app completa por defecto */
+            /* Configuración estricta de la página física */
+            @page {
+                size: auto;
+                margin: 0mm;
+            }
+            
+            /* Ocultar radicalmente la aplicación entera */
             body * {
                 visibility: hidden !important;
             }
             
-            /* Forzar a que únicamente el área de impresión exista y sea visible */
+            /* Forzar que el cuerpo de impresión inicie al tope superior izquierdo y no genere 2 hojas */
+            html, body {
+                background: #ffffff !important;
+                margin: 0 !important;
+                padding: 0 !important;
+                height: 100vh !important;
+                max-height: 100vh !important;
+                overflow: hidden !important;
+                display: block !important;
+            }
+            
+            /* Contenedor primario de impresión pegado arriba */
             #printArea, #printArea * {
                 visibility: visible !important;
             }
             
             #printArea {
                 display: block !important;
-                position: relative !important;
+                position: absolute !important;
+                left: 0 !important;
+                top: 0 !important;
                 width: 100% !important;
                 margin: 0 !important;
-                padding: 10px !important;
+                padding: 15px !important;
                 background: #ffffff !important;
             }
 
-            /* Contenedor cuadrícula para centrar las etiquetas en la hoja */
+            /* Contenedor tipo bloque para iniciar estricto de arriba hacia abajo */
             .print-grid {
                 display: flex !important;
                 flex-wrap: wrap !important;
-                justify-content: center !important;
-                align-items: center !important;
-                gap: 15px !important;
+                justify-content: flex-start !important;
+                align-items: flex-start !important;
+                gap: 10px !important;
                 width: 100% !important;
             }
 
-            /* Caja de la etiqueta individual (Evita que se mueva a la esquina) */
+            /* Caja de la etiqueta QR individual compactada */
             .qr-print-card {
                 page-break-inside: avoid !important;
                 break-inside: avoid !important;
@@ -49,20 +68,20 @@
                 flex-direction: column !important;
                 align-items: center !important;
                 justify-content: center !important;
-                border: 2px dashed #000000 !important; /* Línea de recorte bien visible */
-                padding: 12px !important;
-                width: 160px !important;
-                height: 170px !important;
+                border: 2px dashed #000000 !important;
+                padding: 8px !important;
+                width: 140px !important;
+                height: 150px !important;
                 background: #ffffff !important;
                 text-align: center !important;
-                margin: 5px !important;
                 box-sizing: border-box !important;
+                margin: 0 !important;
             }
             
-            /* Forzar el tamaño real de la imagen QR en el papel */
+            /* Imagen del QR limpia */
             .qr-print-card img {
                 display: block !important;
-                margin: 5px auto !important;
+                margin: 4px auto !important;
                 width: 100px !important;
                 height: 100px !important;
             }
@@ -437,7 +456,7 @@
             document.getElementById('bulkQrModal').classList.add('hidden');
         };
 
-        // ENFOQUE REMODELADO: Agrega un div grid interno y remueve absolutos para centrar la etiqueta en celulares
+        // EXCLUSIVO SOLO QR Y CÓDIGO INV (DE ARRIBA HACIA ABAJO)
         window.imprimirCodigosSeleccionados = function() {
             const checkboxes = document.querySelectorAll('.qr-selector:checked');
             if (checkboxes.length === 0) {
@@ -449,27 +468,21 @@
             printArea.innerHTML = ''; 
             printArea.classList.remove('hidden'); 
 
-            // Creamos una subestructura grid flexible
             const gridContainer = document.createElement('div');
             gridContainer.className = "print-grid";
             printArea.appendChild(gridContainer);
 
-            // Generamos las tarjetas estructuradas centradas
             checkboxes.forEach((cb, idx) => {
                 const item = cacheInventario.find(i => i.id === cb.value);
                 if (item) {
                     const printCard = document.createElement('div');
                     printCard.className = "qr-print-card";
                     printCard.innerHTML = `
-                        <div style="font-size: 13px; font-weight: bold; margin-bottom: 5px; color: #000000; font-family: sans-serif;">${item.codigo}</div>
+                        <div style="font-size: 13px; font-weight: bold; margin-bottom: 6px; color: #000000; font-family: sans-serif;">${item.codigo}</div>
                         <div id="finalPrintQR_${idx}" style="background: #ffffff; padding: 2px; display: inline-block;"></div>
-                        <div style="font-size: 11px; color: #000000; margin-top: 5px; max-width: 140px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-family: sans-serif; font-weight: bold;">
-                            ${item.area || '—'}
-                        </div>
                     `;
                     gridContainer.appendChild(printCard);
 
-                    // Re-dibujar el código QR en alta calidad
                     new QRCode(document.getElementById(`finalPrintQR_${idx}`), {
                         text: item.codigo,
                         width: 100,
@@ -481,7 +494,6 @@
                 }
             });
 
-            // Delay controlado para móviles
             setTimeout(() => {
                 window.print();
                 

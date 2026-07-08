@@ -10,37 +10,38 @@
     <style>
         .overflow-y-auto::-webkit-scrollbar { width: 0px; background: transparent; }
         
-        /* ESTILOS REFORZADOS PARA IMPRESIÓN DIRECTA SIN HOJAS EN BLANCO */
+        /* ESTILOS REFORZADOS PARA ENMENDAR LA IMPRESIÓN EN CELULARES */
         @media print {
-            /* Ocultar absolutamente todo el cuerpo de la aplicación */
-            body > *:not(#bulkQrModal) {
-                display: none !important;
-            }
-            #appContainer, #loginScreen, #detailsModal, .no-print {
-                display: none !important;
+            /* Ocultar la app completa por defecto */
+            body * {
                 visibility: hidden !important;
             }
-
-            /* Forzar a que el área de impresión sea lo único visible y ocupe toda la pantalla */
+            
+            /* Forzar a que únicamente el área de impresión exista y sea visible */
+            #printArea, #printArea * {
+                visibility: visible !important;
+            }
+            
             #printArea {
+                display: block !important;
+                position: relative !important;
+                width: 100% !important;
+                margin: 0 !important;
+                padding: 10px !important;
+                background: #ffffff !important;
+            }
+
+            /* Contenedor cuadrícula para centrar las etiquetas en la hoja */
+            .print-grid {
                 display: flex !important;
                 flex-wrap: wrap !important;
-                justify-content: start !important;
-                position: absolute !important;
-                left: 0 !important;
-                top: 0 !important;
+                justify-content: center !important;
+                align-items: center !important;
+                gap: 15px !important;
                 width: 100% !important;
-                height: auto !important;
-                background: white !important;
-                visibility: visible !important;
-                z-index: 99999 !important;
             }
 
-            #printArea * {
-                visibility: visible !important;
-            }
-
-            /* Caja de cada etiqueta QR individual */
+            /* Caja de la etiqueta individual (Evita que se mueva a la esquina) */
             .qr-print-card {
                 page-break-inside: avoid !important;
                 break-inside: avoid !important;
@@ -48,21 +49,22 @@
                 flex-direction: column !important;
                 align-items: center !important;
                 justify-content: center !important;
-                border: 1px dashed #000 !important; /* Línea discontinua guía para recortar */
-                padding: 10px !important;
-                margin: 8px !important;
-                width: 130px !important;
-                height: 140px !important;
-                background: white !important;
+                border: 2px dashed #000000 !important; /* Línea de recorte bien visible */
+                padding: 12px !important;
+                width: 160px !important;
+                height: 170px !important;
+                background: #ffffff !important;
                 text-align: center !important;
+                margin: 5px !important;
+                box-sizing: border-box !important;
             }
             
-            /* Forzar que las imágenes generadas por qrcode.js se muestren */
+            /* Forzar el tamaño real de la imagen QR en el papel */
             .qr-print-card img {
                 display: block !important;
-                margin: 0 auto !important;
-                width: 90px !important;
-                height: 90px !important;
+                margin: 5px auto !important;
+                width: 100px !important;
+                height: 100px !important;
             }
         }
     </style>
@@ -264,7 +266,7 @@
         <main id="bulkQrListContainer" class="flex-1 p-3 overflow-y-auto space-y-2 no-print">
             </main>
 
-        <div id="printArea" class="hidden flex-wrap justify-start p-4 bg-white"></div>
+        <div id="printArea" class="hidden bg-white"></div>
     </div>
 
     <script type="module">
@@ -435,7 +437,7 @@
             document.getElementById('bulkQrModal').classList.add('hidden');
         };
 
-        // CORRECCIÓN CLAVE: Procesa, dibuja con tiempo los QR y limpia la hoja antes de imprimir
+        // ENFOQUE REMODELADO: Agrega un div grid interno y remueve absolutos para centrar la etiqueta en celulares
         window.imprimirCodigosSeleccionados = function() {
             const checkboxes = document.querySelectorAll('.qr-selector:checked');
             if (checkboxes.length === 0) {
@@ -444,29 +446,34 @@
             }
 
             const printArea = document.getElementById('printArea');
-            printArea.innerHTML = ''; // Limpiar residuos anteriores
+            printArea.innerHTML = ''; 
             printArea.classList.remove('hidden'); 
 
-            // Generamos las tarjetas estructuradas para las etiquetas físicas
+            // Creamos una subestructura grid flexible
+            const gridContainer = document.createElement('div');
+            gridContainer.className = "print-grid";
+            printArea.appendChild(gridContainer);
+
+            // Generamos las tarjetas estructuradas centradas
             checkboxes.forEach((cb, idx) => {
                 const item = cacheInventario.find(i => i.id === cb.value);
                 if (item) {
                     const printCard = document.createElement('div');
                     printCard.className = "qr-print-card";
                     printCard.innerHTML = `
-                        <div style="font-size: 12px; font-weight: bold; margin-bottom: 5px; color: #000; font-family: sans-serif;">${item.codigo}</div>
-                        <div id="finalPrintQR_${idx}" style="background: white; padding: 2px; display: inline-block;"></div>
-                        <div style="font-size: 10px; color: #000; margin-top: 5px; max-width: 125px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-family: sans-serif; font-weight: 600;">
+                        <div style="font-size: 13px; font-weight: bold; margin-bottom: 5px; color: #000000; font-family: sans-serif;">${item.codigo}</div>
+                        <div id="finalPrintQR_${idx}" style="background: #ffffff; padding: 2px; display: inline-block;"></div>
+                        <div style="font-size: 11px; color: #000000; margin-top: 5px; max-width: 140px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-family: sans-serif; font-weight: bold;">
                             ${item.area || '—'}
                         </div>
                     `;
-                    printArea.appendChild(printCard);
+                    gridContainer.appendChild(printCard);
 
-                    // Generar el código QR final en alta resolución
+                    // Re-dibujar el código QR en alta calidad
                     new QRCode(document.getElementById(`finalPrintQR_${idx}`), {
                         text: item.codigo,
-                        width: 90,
-                        height: 90,
+                        width: 100,
+                        height: 100,
                         colorDark: "#000000",
                         colorLight: "#ffffff",
                         correctLevel: QRCode.CorrectLevel.H
@@ -474,15 +481,14 @@
                 }
             });
 
-            // TIEMPO DE ESPERA AJUSTADO: Asegura que qrcode.js cree las etiquetas <img> antes de mandar a imprimir
+            // Delay controlado para móviles
             setTimeout(() => {
                 window.print();
                 
-                // Al terminar o cancelar la acción, reacomoda el modal ocultando el área de impresión
                 setTimeout(() => {
                     printArea.classList.add('hidden');
-                }, 500);
-            }, 1000);
+                }, 600);
+            }, 1100);
         };
 
         window.openDetailsModal = function(id) {

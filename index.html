@@ -158,21 +158,29 @@
 
     <!-- Pantalla de Login -->
     <div id="loginScreen" class="w-full max-w-md bg-white min-h-screen flex flex-col justify-center items-center px-8 shadow-xl">
-        <div class="text-center space-y-3 mb-8">
+        <div class="text-center space-y-3 mb-6">
             <div class="w-16 h-16 bg-purple-100 text-[#6a1b9a] rounded-2xl flex items-center justify-center mx-auto shadow-sm">
                 <i class="fa-solid fa-shield-halved text-2xl"></i>
             </div>
             <h2 class="text-2xl font-bold text-slate-800 tracking-tight">Acceso Restringido</h2>
-            <p class="text-xs text-slate-400 max-w-[240px] mx-auto">Introduce tu correo corporativo para gestionar el inventario.</p>
+            <p class="text-xs text-slate-400 max-w-[240px] mx-auto">Introduce tus credenciales para gestionar el inventario.</p>
         </div>
 
         <div class="w-full space-y-4">
             <div class="relative">
                 <i class="fa-solid fa-envelope absolute left-4 top-3.5 text-slate-400 text-sm"></i>
-                <input type="email" id="passwordInput" placeholder="Correo de administrador" 
+                <input type="email" id="loginEmail" placeholder="Correo de administrador" 
                     class="w-full pl-10 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:border-purple-500 focus:bg-white text-sm text-slate-700 transition-all">
             </div>
+
+            <div class="relative">
+                <i class="fa-solid fa-lock absolute left-4 top-3.5 text-slate-400 text-sm"></i>
+                <input type="password" id="loginPassword" placeholder="Contraseña" 
+                    class="w-full pl-10 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:border-purple-500 focus:bg-white text-sm text-slate-700 transition-all">
+            </div>
+
             <p id="loginError" class="text-rose-500 text-xs font-medium text-center hidden">Credenciales incorrectas.</p>
+            
             <button onclick="verificarPassword()" class="w-full py-3.5 bg-[#6a1b9a] hover:bg-purple-800 text-white font-bold rounded-xl text-sm transition shadow-md">
                 Entrar al Sistema
             </button>
@@ -456,11 +464,12 @@
         });
 
         window.verificarPassword = async function() {
-            const email = document.getElementById('passwordInput').value;
-            const pass = prompt("Introduce tu contraseña de administrador:");
+            const email = document.getElementById('loginEmail').value.trim();
+            const pass = document.getElementById('loginPassword').value.trim();
             
             if (!email || !pass) {
-                alert("Por favor introduce el correo y la contraseña.");
+                document.getElementById('loginError').classList.remove('hidden');
+                document.getElementById('loginError').innerText = "Por favor completa ambos campos.";
                 return;
             }
 

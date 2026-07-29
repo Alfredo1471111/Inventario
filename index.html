@@ -108,8 +108,19 @@
                 width: 100% !important;
             }
             
-            .qr-print-card .qr-wrapper img,
+            /* qrcode.js crea DOS elementos por cada QR (un <canvas> y una <img>)
+               y oculta uno de los dos con su propio estilo inline, según el
+               navegador. Forzar "display:block" en ambos con !important
+               anulaba ese ocultamiento y los mostraba superpuestos (QR
+               "doble"). Ahora solo se fuerza tamaño, no visibilidad: se
+               respeta cuál de los dos oculta la propia librería y, además,
+               se oculta explícitamente el <canvas> ya que la <img> (con la
+               imagen ya "horneada") es la que debe quedar visible. */
             .qr-print-card .qr-wrapper canvas {
+                display: none !important;
+            }
+
+            .qr-print-card .qr-wrapper img {
                 display: block !important;
                 width: 85px !important;
                 height: 85px !important;

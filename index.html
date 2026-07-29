@@ -28,29 +28,26 @@
                 margin: 10mm 8mm 10mm 8mm;
             }
             
-            body * {
-                visibility: hidden !important;
+            /* visibility:hidden NO libera el espacio del elemento (por eso
+               #loginScreen y #appContainer, que tienen min-height:100vh,
+               dejaban una hoja completa en blanco antes del QR).
+               Se usa display:none en todo lo que no sea #printArea para
+               sacarlo del flujo por completo. */
+            body > *:not(#printArea) {
+                display: none !important;
             }
-            
+
             html, body {
                 background: white !important;
                 margin: 0 !important;
                 padding: 0 !important;
                 width: 100% !important;
-                height: 100% !important;
                 -webkit-print-color-adjust: exact !important;
                 print-color-adjust: exact !important;
             }
-            
+
             #printArea, #printArea * {
                 visibility: visible !important;
-            }
-
-            /* Los modales usan position:fixed. visibility:hidden no siempre
-               evita que un elemento fixed se repita en cada hoja al imprimir
-               (bug conocido de Chrome). Se ocultan del todo con display:none. */
-            #bulkQrModal, #createModal, #detailsModal, #scannerModal {
-                display: none !important;
             }
 
             /* Importante: sin position:absolute/fixed y sin min-height:100vh.
